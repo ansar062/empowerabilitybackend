@@ -11,7 +11,7 @@ const mainRoute = require("./Routes/MainRoute");
 const jobRoute = require("./Routes/JobRoute");
 const freelancerRoute = require("./Routes/FreelancerRoute");
 const jobApplicationRoute = require("./Routes/JobApplicationRoute");
-const {MONGODB, PORT, ORIGIN} = process.env;
+const {MONGODB, PORT} = process.env;
 app.use(cookieParser());
 const multer = require('multer');
 const uploadMiddleware = multer({dest: 'uploads/'});
@@ -19,8 +19,6 @@ app.use('/uploads', express.static(__dirname + '/uploads'));
 
 mongoose
   .connect(MONGODB, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
   })
   .then(() => console.log("MongoDB is  connected successfully"))
   .catch((err) => console.error(err));
