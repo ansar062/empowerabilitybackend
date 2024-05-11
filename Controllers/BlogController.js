@@ -5,9 +5,7 @@ const fs = require('fs');
 
 module.exports.CreateBlog = async (req, res, next) => {
   try {
-    const { title, content } = req.body;
-    
-    const filepath = req.file.path;
+    const { title, content, cover } = req.body;
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
@@ -19,7 +17,7 @@ module.exports.CreateBlog = async (req, res, next) => {
         await Blog.create({
           title,
           content,
-          cover: filepath,
+          cover,
           author: info.id,
         });
         return res.json({
@@ -44,9 +42,7 @@ module.exports.DeleteBlog = async (req, res) => {
         if (err) throw err;
         const blogdoc = await Blog.findById(id).populate('author', ["_id"]);
         if(blogdoc.author._id.equals(info.id)){
-          if (blogdoc.cover) {
-            fs.unlinkSync(blogdoc.cover);
-          }
+          
           await Blog.findByIdAndDelete(id);
           return res.json({message: "deleted", status: true})
         }
@@ -61,14 +57,10 @@ module.exports.DeleteBlog = async (req, res) => {
 }
 module.exports.PutBlog = async (req, res) => {
   try {
-    const { id, title, content } = req.body;
+    const { id, title, content, cover } = req.body;
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
-    let filepath;
-    if (req.file) {
-      filepath = req.file.path;
-    }
-  
+    
 
     if (!token) {
       return res.json({ status: false });
@@ -76,16 +68,14 @@ module.exports.PutBlog = async (req, res) => {
       jwt.verify(token, process.env.TOKEN_KEY, {}, async (err, info) => {
         if (err) throw err;
         const blogdoc = await Blog.findById(id);
+        console.log(blogdoc);
         if(blogdoc.author._id.equals(info.id)){
           const updateFields = {
             title,
             content,
           };
-          if (filepath) {
-            if (blogdoc.cover) {
-              fs.unlinkSync(blogdoc.cover);
-            }
-            updateFields.cover = filepath;
+          if (cover) {
+            updateFields.cover = cover;
           }
           await blogdoc.updateOne(updateFields)
           return res.json({
