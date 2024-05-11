@@ -13,9 +13,6 @@ const freelancerRoute = require("./Routes/FreelancerRoute");
 const jobApplicationRoute = require("./Routes/JobApplicationRoute");
 const {MONGODB, PORT} = process.env;
 app.use(cookieParser());
-const multer = require('multer');
-const uploadMiddleware = multer({dest: 'uploads/'});
-app.use('/uploads', express.static(__dirname + '/uploads'));
 
 mongoose
   .connect(MONGODB, {
