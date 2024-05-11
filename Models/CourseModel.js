@@ -14,21 +14,12 @@ const courseSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    // done
-    video: {
-        type: Object,
-        required: true
-    },
     price: {
         type: Number,
         required: true
     },
-    duration: {
-        type: Number,
-        required: true
-    },
     cover: {
-        type: Object,
+        type: String,
         required: true
     },
     publisher:{
@@ -40,10 +31,17 @@ const courseSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    assignments: [{
-        type: String,
-        required: true
+    isPublished:{
+        type: Boolean,
+        default: false
+    },
+
+    Lecture: [{
+        type: Schema.Types.ObjectId,
+        ref: "Lecture"
     }]
+    
+    
 })
 
 
