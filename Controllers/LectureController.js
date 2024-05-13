@@ -1,10 +1,12 @@
 const Lecture = require("../Models/LecturesModel");
+const Course = require("../Models/CourseModel");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 module.exports.CreateLecture = async (req, res, next) => {
     try {
-        const { title, video, course } = req.body;
+        const { title, video } = req.body;
+        const { courseid } = req.params;
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
     
@@ -13,11 +15,13 @@ module.exports.CreateLecture = async (req, res, next) => {
         } else {
         jwt.verify(token, process.env.TOKEN_KEY, {}, async (err, info) => {
             if (err) throw err;
-            await Lecture.create({
+            const lecture = await Lecture.create({
             title,
             video,
-            course,
             });
+            await Course.findByIdAndUpdate(courseid, {
+                $push: { Lecture: lecture._id },
+              });
             return res.json({
             status: true,
             message: "Lecture created successfully",
@@ -85,4 +89,12 @@ module.exports.PutLecture = async (req, res) => {
     }
 }
 
-
+module.exports.GetLecture = async (req, res) => {
+    try{
+        const { id } = req.params;
+        const lecture = await Lecture.findById(id);
+        return res.json(lecture);
+    }catch(err){
+        res.json(err)
+    }
+}
