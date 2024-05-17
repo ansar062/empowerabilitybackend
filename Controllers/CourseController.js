@@ -1,5 +1,6 @@
 const Course = require("../Models/CourseModel");
 const Lecture = require("../Models/LecturesModel");
+const User = require("../Models/UserModel");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
@@ -9,13 +10,35 @@ module.exports.CreateCourse = async (req, res, next) => {
     const { title, description, category, price, cover, difficultyLevel } = req.body;
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
-
+    if (
+      !title ||
+      !description ||
+      !category ||
+      !price ||
+      !cover ||
+      !difficultyLevel
+    ) {
+      return next(
+        res.json({
+          status: false,
+          message: "Please provide full course details.",
+        })
+      );
+    }
     if (!token) {
       return res.json({ status: false, message: "No token" });
     } else {
       jwt.verify(token, process.env.TOKEN_KEY, {}, async (err, info) => {
         if (err) throw err;
-        console.log(title, description, category, price, cover, difficultyLevel, info.id);
+        const user = await User.findById(info.id);
+        if (user.role != "trainer") {
+          return next(
+            res.json({
+              status: false,
+              message: "You are not authorized to post a course",
+            })
+          );
+        }
         await Course.create({
           title,
           description,
@@ -56,12 +79,13 @@ module.exports.GetMyCourses = async (req, res) => {
 
 module.exports.GetAllCourses = async (req, res) => {
   try{
-    const courses = await Course.find({isPublished: false}).populate('publisher', ["username"]);
+    const courses = await Course.find({isPublished: true}).populate('publisher', ["username"]);
     return res.json(courses);
   }catch(err){
     res.json(err)
   }
 }
+
 
 module.exports.GetSingleCourse = async (req, res) => {
   try{
@@ -110,6 +134,21 @@ module.exports.UpdateCourse = async (req, res) => {
     const { id } = req.params;
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
+    if (
+      !title ||
+      !description ||
+      !category ||
+      !price ||
+      !cover ||
+      !difficultyLevel
+    ) {
+      return next(
+        res.json({
+          status: false,
+          message: "Please provide full course details.",
+        })
+      );
+    }
     if (!token) {
       return res.json({ status: false, message: "No token"});
     }else{

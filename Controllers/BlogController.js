@@ -14,6 +14,14 @@ module.exports.CreateBlog = async (req, res, next) => {
     } else {
       jwt.verify(token, process.env.TOKEN_KEY, {}, async (err, info) => {
         if (err) throw err;
+        if(!cover){
+          return res.json({status: false, message: "Cover is required"})
+        }
+        if(!title){
+          return res.json({status: false, message: "Title is required"})
+        }if(!content){
+          return res.json({status: false, message: "Content is required"})
+        }
         await Blog.create({
           title,
           content,
@@ -60,6 +68,7 @@ module.exports.PutBlog = async (req, res) => {
     const { id, title, content, cover } = req.body;
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
+    
     
 
     if (!token) {

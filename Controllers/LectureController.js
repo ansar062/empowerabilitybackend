@@ -9,7 +9,17 @@ module.exports.CreateLecture = async (req, res, next) => {
         const { courseid } = req.params;
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
-    
+        if (
+            !title ||
+            !video 
+          ) {
+            return next(
+              res.json({
+                status: false,
+                message: "Please provide full lecture details.",
+              })
+            );
+          }
         if (!token) {
         return res.json({ status: false, message: "No token" });
         } else {
@@ -18,6 +28,7 @@ module.exports.CreateLecture = async (req, res, next) => {
             const lecture = await Lecture.create({
             title,
             video,
+            course: courseid,
             });
             await Course.findByIdAndUpdate(courseid, {
                 $push: { Lecture: lecture._id },
@@ -43,8 +54,13 @@ module.exports.DeleteLecture = async (req, res) => {
         }else{
         jwt.verify(token, process.env.TOKEN_KEY, {}, async (err, info) => {
             if (err) throw err;
-            const lecturedoc = await Lecture.findById(id).populate('course', ["author"]);
-            if(lecturedoc.course.author.equals(info.id)){
+            const lecturedoc = await Lecture.findById(id).populate('course', ["publisher"]);
+            console.log(lecturedoc)
+            if(lecturedoc.course.publisher.equals(info.id)){
+                console.log(lecturedoc.course._id.toString())
+            await Course.findByIdAndUpdate(lecturedoc.course._id.toString(), {
+                    $pull: { Lecture: id },
+            });
             
             await Lecture.findByIdAndDelete(id);
             return res.json({message: "deleted", status: true})
@@ -54,6 +70,7 @@ module.exports.DeleteLecture = async (req, res) => {
             })
         });
         }
+
     }catch(err){
         res.json(err)
     }
@@ -69,8 +86,9 @@ module.exports.PutLecture = async (req, res) => {
         }else{
         jwt.verify(token, process.env.TOKEN_KEY, {}, async (err, info) => {
             if (err) throw err;
-            const lecturedoc = await Lecture.findById(id).populate('course', ["author"]);
-            if(lecturedoc.course.author.equals(info.id)){
+            const lecturedoc = await Lecture.findById(id).populate('course', ["publisher"]);
+            
+            if(lecturedoc.course.publisher.equals(info.id)){
             
             await Lecture.findByIdAndUpdate(id, {
                 title,
