@@ -64,7 +64,7 @@ module.exports.buyCourse = async (req, res) => {
         await Course.findByIdAndUpdate(id, {
           $push: { enrolledStudents: user._id },
         });
-        return res.json({ message: `You are now redirecting to payment gateway`,session:session.url });
+        return res.json({ message: `You have successfully bought the course`, status:true });
       });
     }
   } catch (err) {

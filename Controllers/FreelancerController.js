@@ -18,13 +18,14 @@ module.exports.SetUpFreelancerProfile = async (req, res) => {
       skills,
       firstname,
       lastname,
+      image,
     } = req.body;
     if (!token) {
       return res.json({ status: false });
     } else {
       jwt.verify(token, process.env.TOKEN_KEY, {}, async (err, info) => {
         if (err) throw err;
-        await User.findByIdAndUpdate(info.id, {firstname, lastname})
+        await User.findByIdAndUpdate(info.id, {firstname, lastname, image})
         await Freelancer.create({
           baseUser: info.id,
           address,
@@ -59,8 +60,10 @@ module.exports.EditFreelancerProfile = async (req, res) => {
       portfolioLink,
       skills,
       firstname,
-      lastname
+      lastname,
+      image
     } = req.body;
+    console.log(req.body);
     if (!token) {
       return res.json({ status: false });
     } else {
@@ -76,7 +79,7 @@ module.exports.EditFreelancerProfile = async (req, res) => {
           portfolioLink,
           skills,
         };
-        await User.findByIdAndUpdate(info.id, {firstname, lastname})
+        await User.findByIdAndUpdate(info.id, {firstname, lastname, image})
         const freelancerProfile = await Freelancer.findOne({baseUser:info.id});
         const profile = await freelancerProfile.updateOne(updatedFields);
 
