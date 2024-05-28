@@ -11,6 +11,7 @@ const mainRoute = require("./Routes/MainRoute");
 const jobRoute = require("./Routes/JobRoute");
 const lectureRoute = require("./Routes/LectureRoute");
 const feedbackRoute = require("./Routes/FeedbackRoute");
+const tutorRoute = require("./Routes/TutorRoute");
 const freelancerRoute = require("./Routes/FreelancerRoute");
 const jobApplicationRoute = require("./Routes/JobApplicationRoute");
 const {MONGODB, PORT} = process.env;
@@ -48,5 +49,6 @@ app.use("/", jobRoute);
 app.use("/", jobApplicationRoute);
 app.use("/", courseRoute);
 app.use("/freelancer/", freelancerRoute)
+app.use("/tutors/", tutorRoute);
 app.use("/", lectureRoute)
 app.use('/', feedbackRoute)
